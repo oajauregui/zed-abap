@@ -7,5 +7,5 @@ authors = ["Oscar Jauregui <ojauregui@gmail.com>"]
 repository = "https://github.com/oajauregui/zed-abap"
 
 [grammars.abap]
-repository = "https://github.com/mkoval1/tree-sitter-abap"
-rev = "c7604df9e25d56ae879fa25694fd9f2ddbab05d8"
+repository = "https://github.com/oajauregui/tree-sitter-abap"
+rev = "2d491ed106cfad983cdc6cc1aba16ac36c0eaf84"

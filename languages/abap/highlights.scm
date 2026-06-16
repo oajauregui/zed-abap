@@ -1,189 +1,163 @@
-; ============================================================
-; highlights.scm — ABAP (tree-sitter-abap)
-; Node inventory sourced from grammar.js @ mkoval1/tree-sitter-abap
-; ============================================================
+; ── Comments ──────────────────────────────────────────────────
+(eol_comment) @comment
+(bol_comment) @comment
 
-; ── Comments ────────────────────────────────────────────────
-; bol_comment: lines starting with *
-; eol_comment: inline " ... to end-of-line
-[
-  (bol_comment)
-  (eol_comment)
-] @comment
-
-; ── String literals ─────────────────────────────────────────
+; ── Literals ──────────────────────────────────────────────────
+(numeric_literal) @number
 (character_literal) @string
 
-; CALL FUNCTION 'FM_NAME' — the FM name is a character literal used as
-; a function identifier; override @string with @function for that position.
-(call_function name: (character_literal) @function)
-
-; ── Numeric literals ─────────────────────────────────────────
-(numeric_literal) @number
-
-; ── Field symbols (<FS>) ─────────────────────────────────────
-; The entire token including angle brackets is a single `field_symbol_name` node.
-(field_symbol_name) @variable.special
-
-; ── Type references ──────────────────────────────────────────
-; `type` is an alias of `name` produced inside typing clauses
-; (e.g. TYPE lcl_foo, TYPE REF TO cx_root).
+; ── Types ─────────────────────────────────────────────────────
 (type) @type
 
-; ── Class / Interface / Function — declaration names ─────────
-(class_declaration        name: (name) @type)
-(class_implementation     name: (name) @type)
-(interface_declaration    name: (name) @type)
-(function_implementation  name: (name) @function)
+; ── Field Symbols ─────────────────────────────────────────────
+(field_symbol_name) @variable.special
+(field_symbol (name) @variable.special)
 
-; ── Method declarations (inside CLASS ... DEFINITION) ────────
-(method_declaration       name: (name) @function)
+; ── Variables (chained DATA: declarations) ────────────────────
+(variable (name) @variable)
+
+; ── Named declarations ────────────────────────────────────────
+(class_declaration name: (name) @type)
+(class_implementation name: (name) @type)
+(interface_declaration name: (name) @type)
+(function_implementation name: (name) @function)
+(method_implementation name: (name) @function)
+(method_declaration name: (name) @function)
 (class_method_declaration name: (name) @function)
 
-; ── Method implementations (CLASS ... IMPLEMENTATION) ────────
-(method_implementation    name: (name) @function)
+; ── Method / function calls ───────────────────────────────────
+(call_method_static class_name: (name) @type method_name: (name) @function)
+(call_method_instance instance_name: (name) @variable method_name: (name) @function)
+(call_method name: (name) @function)
+(call_function name: (character_literal) @string)
 
-; ── Variable declarations ─────────────────────────────────────
-(variable_declaration name: (name) @variable)
-
-; ── Static method / attribute calls  (Class=>member) ─────────
-(call_method_static
-  class_name:  (name) @type
-  method_name: (name) @function)
-
-(attribute_access_static
-  class:     (name) @type
-  attribute: (name) @property)
-
-; ── Instance method calls  (ref->method) ──────────────────────
-(call_method_instance
-  instance_name: (name) @variable
-  method_name:   (name) @function)
-
-; ── Keywords ─────────────────────────────────────────────────
-; Full inventory of kw() aliases defined in grammar.js.
-; "and" / "or" / "not" intentionally included here (also logical);
-; "return" gets its own semantic capture below.
+; ── Keywords ──────────────────────────────────────────────────
 [
-  "abstract"
-  "all"
-  "append"
-  "appending"
-  "assigning"
-  "at"
+  ; Data declarations
+  "data"
+  "field-symbols"
   "begin"
-  "binary"
-  "call"
-  "catch"
-  "changing"
-  "check"
+  "end"
+  "of"
+  "line"
+  "read-only"
+  "value"
+  "reference"
+  "optional"
+  ; Types
+  "type"
+  "like"
+  "ref"
+  "standard"
+  "sorted"
+  "hashed"
+  "table"
+  "any"
+  ; OO structure
   "class"
+  "endclass"
+  "interface"
+  "endinterface"
+  "definition"
+  "implementation"
+  "inheriting"
+  "from"
+  "abstract"
+  "final"
+  "create"
+  "public"
+  "protected"
+  "private"
+  "section"
+  "friends"
+  "local"
+  "deferred"
+  "shared"
+  "memory"
+  "enabled"
+  ; Methods
+  "method"
+  "endmethod"
+  "methods"
   "class-methods"
   "class_constructor"
-  "clear"
   "constructor"
-  "continue"
-  "corresponding"
-  "create"
-  "data"
-  "default"
-  "deferred"
-  "definition"
-  "enabled"
-  "end"
-  "endclass"
-  "endfunction"
-  "endif"
-  "endinterface"
-  "endloop"
-  "endmethod"
-  "endtry"
-  "entries"
-  "eq"
-  "exception"
-  "exceptions"
-  "exit"
-  "exporting"
-  "fail"
-  "field-symbols"
-  "fields"
-  "final"
-  "for"
-  "found"
-  "friends"
-  "from"
-  "function"
-  "global"
-  "hashed"
-  "if"
-  "ignore"
-  "implementation"
-  "importing"
-  "in"
-  "include"
-  "inheriting"
-  "initial"
-  "interface"
-  "into"
-  "is"
-  "key"
-  "like"
-  "line"
-  "local"
-  "loop"
-  "memory"
-  "method"
-  "methods"
-  "ne"
-  "no"
-  "not"
-  "object"
-  "of"
-  "optional"
-  "private"
-  "protected"
-  "public"
-  "raise"
-  "raising"
-  "read"
-  "read-only"
   "redefinition"
-  "ref"
-  "reference"
-  "report"
-  "resumable"
+  "importing"
+  "exporting"
+  "changing"
   "returning"
-  "rows"
-  "search"
-  "section"
-  "select"
-  "shared"
-  "sorted"
-  "standard"
-  "step"
-  "table"
-  "to"
-  "transporting"
+  "raising"
+  "resumable"
+  "exceptions"
+  "receiving"
+  "default"
+  "ignore"
+  "fail"
+  ; Function modules
+  "function"
+  "endfunction"
+  "call"
+  "exception"
+  ; Control flow
+  "if"
+  "elseif"
+  "else"
+  "endif"
+  "check"
+  "return"
+  "exit"
+  "continue"
   "try"
-  "type"
-  "up"
-  "value"
+  "catch"
+  "endtry"
+  "raise"
+  ; Loops
+  "loop"
+  "endloop"
+  "at"
+  "into"
+  "assigning"
+  "from"
+  "to"
+  "step"
+  ; SQL
+  "select"
   "where"
+  "up"
+  "rows"
+  "corresponding"
+  "fields"
+  "appending"
+  "for"
+  "all"
+  "entries"
+  "in"
+  ; Read table
+  "read"
   "with"
+  "key"
+  "binary"
+  "search"
+  "transporting"
+  "no"
+  ; Misc statements
+  "clear"
+  "append"
+  "object"
+  "include"
+  "found"
   "write"
-] @keyword
-
-; Logical connectives
-[
+  "report"
+  ; Logical
+  "not"
   "and"
   "or"
+  "is"
+  "initial"
 ] @keyword
 
-; RETURN is semantically a control-flow keyword — separate capture
-; so themes that distinguish control-flow can style it differently.
-"return" @keyword
-
-; ── Comparison & arithmetic operators ─────────────────────────
+; ── Operators ─────────────────────────────────────────────────
 [
   "="
   "<>"
@@ -194,17 +168,10 @@
   "**"
   "DIV"
   "MOD"
+  "eq"
+  "ne"
 ] @operator
-
-; OO navigation operators (token.immediate in grammar)
-"=>" @operator
-"->" @operator
 
 ; ── Punctuation ───────────────────────────────────────────────
 ["(" ")"] @punctuation.bracket
-["[" "]"] @punctuation.bracket
-
-; Statement terminator and list separators
-"." @punctuation.delimiter
-"," @punctuation.delimiter
-":" @punctuation.delimiter
+["." "," ":"] @punctuation.delimiter
