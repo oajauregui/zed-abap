@@ -1,0 +1,11 @@
+id = "abap"
+name = "ABAP"
+description = "ABAP language support: syntax highlighting, bracket matching, and document outline"
+version = "0.0.1"
+schema_version = 1
+authors = ["Oscar Jauregui <ojauregui@gmail.com>"]
+repository = "https://github.com/oajauregui/zed-abap"
+
+[grammars.abap]
+repository = "https://github.com/mkoval1/tree-sitter-abap"
+rev = "c7604df9e25d56ae879fa25694fd9f2ddbab05d8"

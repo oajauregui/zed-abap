@@ -1,0 +1,20 @@
+name = "ABAP"
+grammar = "abap"
+
+# .abap covers the base case; the compound variants (prog.abap, fugr.abap, etc.)
+# are matched because path_suffixes checks whether the filename *ends with* the suffix.
+path_suffixes = ["abap", "prog.abap", "fugr.abap", "clas.abap", "intf.abap", "fugr.include.abap"]
+
+# " is the ABAP inline/EOL comment token.
+# * (BOL) comments are handled by the tree-sitter grammar; not included here
+# because Zed's toggle-comment keybind would insert * mid-line incorrectly.
+line_comments = ["\" "]
+
+tab_size = 2
+hard_tabs = false
+
+# Bracket auto-close pairs (config-level; structural rainbow matching via brackets.scm)
+brackets = [
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "[", end = "]", close = true, newline = false },
+]
