@@ -5,6 +5,8 @@
 ; ── Literals ──────────────────────────────────────────────────
 (numeric_literal) @number
 (character_literal) @string
+(string_template) @string
+(text_symbol) @string
 
 ; ── Types ─────────────────────────────────────────────────────
 (type) @type
@@ -15,6 +17,19 @@
 
 ; ── Variables (chained DATA: declarations) ────────────────────
 (variable (name) @variable)
+
+; ── Inline declarations ───────────────────────────────────────
+(inline_declaration name: (name) @variable)
+(inline_fs_declaration (field_symbol_name) @variable.special)
+
+; ── Constructor expressions ───────────────────────────────────
+(constructor_expression (type) @type)
+
+; ── SELECT modifier (SINGLE / DISTINCT) ───────────────────────
+(select_modifier) @keyword
+
+; ── Function end (ENDFUNCTION) ────────────────────────────────
+(function_end) @keyword
 
 ; ── Named declarations ────────────────────────────────────────
 (class_declaration name: (name) @type)
@@ -31,11 +46,39 @@
 (call_method name: (name) @function)
 (call_function name: (character_literal) @string)
 
+; ── Built-in predicate functions (line_exists, xsdbool, etc.) ─
+(predicate_call name: (name) @function.builtin)
+
 ; ── Keywords ──────────────────────────────────────────────────
 [
   ; Data declarations
   "data"
+  "statics"
+  "class-data"
   "field-symbols"
+  ; Report / selection screen
+  "tables"
+  "selection-screen"
+  "parameters"
+  "block"
+  "frame"
+  "title"
+  "skip"
+  "radiobutton"
+  "group"
+  "user-command"
+  "value-request"
+  "pushbutton"
+  "obligatory"
+  "no-display"
+  "on"
+  "output"
+  "modif"
+  "checkbox"
+  "listbox"
+  "visible"
+  "length"
+  "as"
   "begin"
   "end"
   "of"
@@ -53,6 +96,8 @@
   "hashed"
   "table"
   "any"
+  "field-symbol"
+  "bound"
   ; OO structure
   "class"
   "endclass"
@@ -133,10 +178,12 @@
   "all"
   "entries"
   "in"
-  ; Read table
+  ; Read table / table key
   "read"
   "with"
   "key"
+  "unique"
+  "non-unique"
   "binary"
   "search"
   "transporting"
@@ -155,6 +202,82 @@
   "or"
   "is"
   "initial"
+  ; SORT
+  "sort"
+  "by"
+  "ascending"
+  "descending"
+  ; CASE/WHEN
+  "case"
+  "endcase"
+  "when"
+  "others"
+  ; CONCATENATE
+  "concatenate"
+  "separated"
+  "gaps"
+  ; CONDENSE
+  "condense"
+  ; REPLACE
+  "replace"
+  "first"
+  "occurrence"
+  "occurrences"
+  ; DELETE
+  "delete"
+  "adjacent"
+  "duplicates"
+  "comparing"
+  "index"
+  ; COLLECT
+  "collect"
+  ; APPEND variants
+  "lines"
+  ; LOOP/ENDLOOP
+  "endloop"
+  ; FUNCTION/ENDFUNCTION
+  "endfunction"
+  ; SELECT ORDER BY
+  "order"
+  "primary"
+  ; TRANSLATE
+  "translate"
+  "upper"
+  "lower"
+  ; SPLIT
+  "split"
+  ; Constructor expressions
+  "cond"
+  "switch"
+  "new"
+  "conv"
+  "cast"
+  "filter"
+  "reduce"
+  "corresponding"
+  "then"
+  "throw"
+  ; ABAP 7.4 — ASSIGN
+  "assign"
+  "casting"
+  ; ABAP 7.4 — MOVE-CORRESPONDING
+  "move-corresponding"
+  "expanding"
+  "nested"
+  "keeping"
+  "target"
+  ; ABAP 7.4 — CORRESPONDING MAPPING/EXCEPT / FILTER USING KEY
+  "mapping"
+  "except"
+  "using"
+  ; ENDSELECT
+  "endselect"
+  ; SQL JOIN
+  "inner"
+  "join"
+  "left"
+  "right"
+  "cross"
 ] @keyword
 
 ; ── Operators ─────────────────────────────────────────────────
@@ -166,6 +289,7 @@
   "*"
   "/"
   "**"
+  "&&"
   "DIV"
   "MOD"
   "eq"
