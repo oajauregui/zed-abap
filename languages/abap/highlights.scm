@@ -1,301 +1,335 @@
-; ── Comments ──────────────────────────────────────────────────
-(eol_comment) @comment
-(bol_comment) @comment
+; NOTE ON PRECEDENCE: Zed's docs only document ONE fallback mechanism —
+; multiple captures on the SAME node within a SINGLE pattern, resolved
+; right-to-left (rightmost tried first, falls back left), e.g.
+; `(type_identifier) @type @variable`. Whether a *separate* later pattern in
+; this file can override an earlier pattern's capture on the same node is
+; NOT documented. To stay correct regardless of that, this file avoids
+; overlapping patterns entirely: there is no generic `(name) @variable`
+; catch-all. Every `(name)` capture below is scoped to a specific,
+; mutually-exclusive field/parent position, and each carries its own
+; `@variable` fallback via the documented same-pattern mechanism. Bare
+; `name` occurrences in positions not called out below (e.g. LOOP AT
+; control variables, obsolete-statement operands) render uncolored rather
+; than risk a wrong override.
 
-; ── Literals ──────────────────────────────────────────────────
+; ── Comments & literals ─────────────────────────────────────────────
+[
+  (bol_comment)
+  (eol_comment)
+] @comment
+
 (numeric_literal) @number
 (character_literal) @string
 (string_template) @string
-(text_symbol) @string
+(text_symbol) @constant
 
-; ── Types ─────────────────────────────────────────────────────
-(type) @type
-
-; ── Field Symbols ─────────────────────────────────────────────
 (field_symbol_name) @variable.special
 (field_symbol (name) @variable.special)
-
-; ── Variables (chained DATA: declarations) ────────────────────
 (variable (name) @variable)
-
-; ── Inline declarations ───────────────────────────────────────
 (inline_declaration name: (name) @variable)
-(inline_fs_declaration (field_symbol_name) @variable.special)
 
-; ── Constructor expressions ───────────────────────────────────
-(constructor_expression (type) @type)
+; ABAP-specific aliased identifier positions (each is its own distinct
+; node type — no overlap with any other pattern in this file)
+(type) @type
+(itab) @variable
+(result) @variable
+(data_source) @type @variable
+(structure_name) @variable
+(strucure_name) @variable
+(component_name) @property @variable
 
-; ── SELECT modifier (SINGLE / DISTINCT) ───────────────────────
-(select_modifier) @keyword
+; ── Types: class / interface names ──────────────────────────────────
+(class_declaration name: (name) @type @variable)
+(class_declaration superclass: (name) @type @variable)
+(class_implementation name: (name) @type @variable)
+(interface_declaration name: (name) @type @variable)
+(class_publication name: (name) @type @variable)
+(class_local_friend_publication name: (name) @type @variable)
+(call_method_static class_name: (name) @type @variable)
+(attribute_access_static class: (name) @type @variable)
+(raise_exception_statement class: (name) @type @variable)
+(catch_statement exception: (name) @type @variable)
 
-; ── Function end (ENDFUNCTION) ────────────────────────────────
-(function_end) @keyword
+; Exception classes on METHODS/CONSTRUCTOR RAISING / EXCEPTIONS clauses
+(method_declaration raising: (name) @type @variable)
+(method_declaration exceptions: (name) @type @variable)
+(class_method_declaration raising: (name) @type @variable)
+(class_method_declaration exceptions: (name) @type @variable)
+(constructor_declaration raising: (name) @type @variable)
+(constructor_declaration exceptions: (name) @type @variable)
 
-; ── Named declarations ────────────────────────────────────────
-(class_declaration name: (name) @type)
-(class_implementation name: (name) @type)
-(interface_declaration name: (name) @type)
-(function_implementation name: (name) @function)
-(method_implementation name: (name) @function)
-(method_declaration name: (name) @function)
-(class_method_declaration name: (name) @function)
+; RFC-style exception/return-code names on CALL FUNCTION ... EXCEPTIONS
+(return_code_binding exception: (name) @constant @variable)
 
-; ── Method / function calls ───────────────────────────────────
-(call_method_static class_name: (name) @type method_name: (name) @function)
-(call_method_instance instance_name: (name) @variable method_name: (name) @function)
-(call_method name: (name) @function)
-(call_function name: (character_literal) @string)
+; ── Functions / methods ──────────────────────────────────────────────
+(method_declaration name: (name) @function @variable)
+(class_method_declaration name: (name) @function @variable)
+(method_redefinition (name) @function @variable)
+(method_implementation name: (name) @function @variable)
+(function_implementation name: (name) @function @variable)
+(call_method name: (name) @function @variable)
+(call_method_static method_name: (name) @function @variable)
+(call_method_instance method_name: (name) @function @variable)
+(predicate_call name: (name) @function.builtin @function @variable)
+(macro_include name: (name) @function @variable)
 
-; ── Built-in predicate functions (line_exists, xsdbool, etc.) ─
-(predicate_call name: (name) @function.builtin)
+; ── Parameters / structure fields ────────────────────────────────────
+(method_parameters (name) @property @variable)
+(returning_parameter (name) @property @variable)
+(parameter_binding formal_parameter: (name) @property @variable)
+(comp_spec component: (name) @property @variable)
+(structure_component (name) @property @variable)
 
-; ── Keywords ──────────────────────────────────────────────────
+; ── Built-in constants ────────────────────────────────────────────────
+; These only compete with each other (both scoped to the exact same
+; regex-matched subset), never with the rules above — no cross-pattern
+; precedence risk.
+((name) @constant.builtin @constant
+  (#match? @constant.builtin "^(?i)abap_(true|false|undefined|on|off)$"))
+
+((structure_name) @constant.builtin @constant
+  (#match? @constant.builtin "^(?i)sy$"))
+
+; ── Keywords ──────────────────────────────────────────────────────────
 [
-  ; Data declarations
-  "data"
-  "statics"
-  "class-data"
-  "field-symbols"
-  ; Report / selection screen
-  "tables"
-  "selection-screen"
-  "parameters"
-  "block"
-  "frame"
-  "title"
-  "skip"
-  "radiobutton"
-  "group"
-  "user-command"
-  "value-request"
-  "pushbutton"
-  "obligatory"
-  "no-display"
-  "on"
-  "output"
-  "modif"
-  "checkbox"
-  "listbox"
-  "visible"
-  "length"
-  "as"
-  "begin"
-  "end"
-  "of"
-  "line"
-  "read-only"
-  "value"
-  "reference"
-  "optional"
-  ; Types
-  "type"
-  "like"
-  "ref"
-  "standard"
-  "sorted"
-  "hashed"
-  "table"
-  "any"
-  "field-symbol"
-  "bound"
-  ; OO structure
-  "class"
-  "endclass"
-  "interface"
-  "endinterface"
-  "definition"
-  "implementation"
-  "inheriting"
-  "from"
   "abstract"
-  "final"
-  "create"
-  "public"
-  "protected"
-  "private"
-  "section"
-  "friends"
-  "local"
-  "deferred"
-  "shared"
-  "memory"
-  "enabled"
-  ; Methods
-  "method"
-  "endmethod"
-  "methods"
+  "adjacent"
+  "all"
+  "any"
+  "append"
+  "appending"
+  "as"
+  "ascending"
+  "assign"
+  "assigning"
+  "at"
+  "begin"
+  "binary"
+  "block"
+  "bound"
+  "by"
+  "call"
+  "case"
+  "cast"
+  "casting"
+  "catch"
+  "changing"
+  "check"
+  "checkbox"
+  "class"
+  "class-data"
   "class-methods"
   "class_constructor"
-  "constructor"
-  "redefinition"
-  "importing"
-  "exporting"
-  "changing"
-  "returning"
-  "raising"
-  "resumable"
-  "exceptions"
-  "receiving"
-  "default"
-  "ignore"
-  "fail"
-  ; Function modules
-  "function"
-  "endfunction"
-  "call"
-  "exception"
-  ; Control flow
-  "if"
-  "elseif"
-  "else"
-  "endif"
-  "check"
-  "return"
-  "exit"
-  "continue"
-  "try"
-  "catch"
-  "endtry"
-  "raise"
-  ; Loops
-  "loop"
-  "endloop"
-  "at"
-  "into"
-  "assigning"
-  "from"
-  "to"
-  "step"
-  ; SQL
-  "select"
-  "where"
-  "up"
-  "rows"
-  "corresponding"
-  "fields"
-  "appending"
-  "for"
-  "all"
-  "entries"
-  "in"
-  ; Read table / table key
-  "read"
-  "with"
-  "key"
-  "unique"
-  "non-unique"
-  "binary"
-  "search"
-  "transporting"
-  "no"
-  ; Misc statements
   "clear"
-  "append"
-  "object"
-  "include"
-  "found"
-  "write"
-  "report"
-  ; Logical
-  "not"
-  "and"
-  "or"
-  "is"
-  "initial"
-  ; SORT
-  "sort"
-  "by"
-  "ascending"
-  "descending"
-  ; CASE/WHEN
-  "case"
-  "endcase"
-  "when"
-  "others"
-  ; CONCATENATE
+  "collect"
+  "comment"
+  "comparing"
   "concatenate"
-  "separated"
-  "gaps"
-  ; CONDENSE
+  "cond"
   "condense"
-  ; REPLACE
-  "replace"
+  "constructor"
+  "continue"
+  "conv"
+  "corresponding"
+  "create"
+  "cross"
+  "data"
+  "default"
+  "deferred"
+  "definition"
+  "delete"
+  "descending"
+  "distinct"
+  "duplicates"
+  "else"
+  "elseif"
+  "enabled"
+  "end"
+  "endcase"
+  "endclass"
+  "endfunction"
+  "endif"
+  "endinterface"
+  "endloop"
+  "endmethod"
+  "endselect"
+  "endtry"
+  "entries"
+  "eq"
+  "except"
+  "exception"
+  "exceptions"
+  "exit"
+  "expanding"
+  "exporting"
+  "fail"
+  "field"
+  "field-symbol"
+  "field-symbols"
+  "fields"
+  "filter"
+  "final"
   "first"
+  "for"
+  "found"
+  "frame"
+  "friends"
+  "from"
+  "function"
+  "gaps"
+  "global"
+  "group"
+  "hashed"
+  "id"
+  "if"
+  "ignore"
+  "implementation"
+  "importing"
+  "in"
+  "include"
+  "index"
+  "inheriting"
+  "initial"
+  "inner"
+  "interface"
+  "into"
+  "is"
+  "join"
+  "keeping"
+  "key"
+  "left"
+  "length"
+  "like"
+  "line"
+  "lines"
+  "listbox"
+  "local"
+  "loop"
+  "lower"
+  "mapping"
+  "memory"
+  "method"
+  "methods"
+  "modif"
+  "move-corresponding"
+  "ne"
+  "nested"
+  "new"
+  "no"
+  "no-display"
+  "non-unique"
+  "object"
+  "obligatory"
   "occurrence"
   "occurrences"
-  ; DELETE
-  "delete"
-  "adjacent"
-  "duplicates"
-  "comparing"
-  "index"
-  ; COLLECT
-  "collect"
-  ; APPEND variants
-  "lines"
-  ; LOOP/ENDLOOP
-  "endloop"
-  ; FUNCTION/ENDFUNCTION
-  "endfunction"
-  ; SELECT ORDER BY
+  "of"
+  "on"
+  "optional"
   "order"
+  "others"
+  "output"
+  "parameters"
   "primary"
-  ; TRANSLATE
-  "translate"
-  "upper"
-  "lower"
-  ; SPLIT
-  "split"
-  ; Constructor expressions
-  "cond"
-  "switch"
-  "new"
-  "conv"
-  "cast"
-  "filter"
+  "private"
+  "protected"
+  "public"
+  "pushbutton"
+  "radiobutton"
+  "raise"
+  "raising"
+  "read"
+  "read-only"
+  "receiving"
+  "redefinition"
   "reduce"
-  "corresponding"
+  "ref"
+  "reference"
+  "replace"
+  "report"
+  "resumable"
+  "returning"
+  "right"
+  "rows"
+  "search"
+  "section"
+  "select"
+  "selection-screen"
+  "separated"
+  "set"
+  "shared"
+  "single"
+  "skip"
+  "sort"
+  "sorted"
+  "split"
+  "standard"
+  "statics"
+  "step"
+  "switch"
+  "table"
+  "tables"
+  "target"
   "then"
   "throw"
-  ; ABAP 7.4 — ASSIGN
-  "assign"
-  "casting"
-  ; ABAP 7.4 — MOVE-CORRESPONDING
-  "move-corresponding"
-  "expanding"
-  "nested"
-  "keeping"
-  "target"
-  ; ABAP 7.4 — CORRESPONDING MAPPING/EXCEPT / FILTER USING KEY
-  "mapping"
-  "except"
+  "title"
+  "to"
+  "translate"
+  "transporting"
+  "try"
+  "type"
+  "unique"
+  "up"
+  "update"
+  "upper"
+  "user-command"
   "using"
-  ; ENDSELECT
-  "endselect"
-  ; SQL JOIN
-  "inner"
-  "join"
-  "left"
-  "right"
-  "cross"
+  "value"
+  "value-request"
+  "visible"
+  "when"
+  "where"
+  "with"
+  "write"
 ] @keyword
 
-; ── Operators ─────────────────────────────────────────────────
+"return" @keyword.return @keyword
+
+[
+  "and"
+  "or"
+  "not"
+] @keyword.operator @keyword
+
+; ── Operators ─────────────────────────────────────────────────────────
 [
   "="
   "<>"
   "+"
   "-"
   "*"
-  "/"
   "**"
-  "&&"
+  "/"
   "DIV"
   "MOD"
-  "eq"
-  "ne"
+  "&&"
+  "!"
 ] @operator
 
-; ── Punctuation ───────────────────────────────────────────────
-["(" ")"] @punctuation.bracket
-["." "," ":"] @punctuation.delimiter
+"@" @punctuation.special
+
+; ── Punctuation ───────────────────────────────────────────────────────
+[
+  "("
+  ")"
+  "[ "
+  "]"
+] @punctuation.bracket
+
+[
+  "."
+  ","
+  ":"
+  "->"
+  "=>"
+  "~"
+] @punctuation.delimiter

@@ -19,6 +19,8 @@ ABAP language support for the [Zed](https://zed.dev) editor.
 | `.clas.abap` | Class |
 | `.intf.abap` | Interface |
 | `.fugr.include.abap` | Function group include |
+| `.tabl.abap` | Table definition |
+| `.ddls.abap` | CDS view |
 
 ## Installation
 
@@ -36,7 +38,10 @@ ABAP language support for the [Zed](https://zed.dev) editor.
 
 ## Grammar
 
-Syntax parsing is powered by [tree-sitter-abap](https://github.com/mkoval1/tree-sitter-abap) by mkoval1.
+Syntax parsing is powered by [tree-sitter-abap](https://github.com/oajauregui/tree-sitter-abap), a
+dedicated grammar built for this extension (not a fork of an existing one). The
+`rev` pinned in `extension.toml` tracks that repo's `main` branch as it
+gains coverage.
 
 ## Comment toggling
 

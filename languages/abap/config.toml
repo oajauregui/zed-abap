@@ -3,7 +3,16 @@ grammar = "abap"
 
 # .abap covers the base case; the compound variants (prog.abap, fugr.abap, etc.)
 # are matched because path_suffixes checks whether the filename *ends with* the suffix.
-path_suffixes = ["abap", "prog.abap", "fugr.abap", "clas.abap", "intf.abap", "fugr.include.abap"]
+path_suffixes = [
+  "abap",
+  "prog.abap",
+  "fugr.abap",
+  "clas.abap",
+  "intf.abap",
+  "fugr.include.abap",
+  "tabl.abap",
+  "ddls.abap",
+]
 
 # " is the ABAP inline/EOL comment token.
 # * (BOL) comments are handled by the tree-sitter grammar; not included here
@@ -15,6 +24,10 @@ hard_tabs = false
 
 # Bracket auto-close pairs (config-level; structural rainbow matching via brackets.scm)
 brackets = [
-  { start = "(", end = ")", close = true, newline = false },
-  { start = "[", end = "]", close = true, newline = false },
+  { start = "(", end = ")", close = true, newline = false, not_in = ["comment", "string"] },
+  { start = "[", end = "]", close = true, newline = false, not_in = ["comment", "string"] },
 ]
+
+# ABAP identifiers routinely chain through "-" (structure-component access,
+# e.g. ls_line-field) and field-symbols are wrapped in "<...>".
+word_characters = ["-", "<", ">"]
