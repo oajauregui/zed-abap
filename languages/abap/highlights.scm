@@ -69,6 +69,7 @@
 (function_implementation name: (name) @function @variable)
 (call_method name: (name) @function @variable)
 (call_method_static method_name: (name) @function @variable)
+(call_method_instance instance_name: (name) @variable)
 (call_method_instance method_name: (name) @function @variable)
 (predicate_call name: (name) @function.builtin @function @variable)
 (macro_include name: (name) @function @variable)
