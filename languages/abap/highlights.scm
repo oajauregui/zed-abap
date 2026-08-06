@@ -67,12 +67,15 @@
 (method_redefinition (name) @function @variable)
 (method_implementation name: (name) @function @variable)
 (function_implementation name: (name) @function @variable)
+(form_implementation name: (name) @function @variable)
 (call_method name: (name) @function @variable)
 (call_method_static method_name: (name) @function @variable)
 (call_method_instance instance_name: (name) @variable)
 (call_method_instance method_name: (name) @function @variable)
 (predicate_call name: (name) @function.builtin @function @variable)
 (macro_include name: (name) @function @variable)
+(perform_statement name: (name) @function @variable)
+(perform_statement program: (name) @type @variable)
 
 ; ── Parameters / structure fields ────────────────────────────────────
 (method_parameters (name) @property @variable)
@@ -124,6 +127,7 @@
   "clear"
   "collect"
   "comment"
+  "commit"
   "comparing"
   "concatenate"
   "cond"
@@ -150,6 +154,7 @@
   "endclass"
   "endfunction"
   "endif"
+  "endform"
   "endinterface"
   "endloop"
   "endmethod"
@@ -172,6 +177,7 @@
   "final"
   "first"
   "for"
+  "form"
   "found"
   "frame"
   "friends"
@@ -200,6 +206,7 @@
   "key"
   "left"
   "length"
+  "level"
   "like"
   "line"
   "lines"
@@ -230,6 +237,7 @@
   "others"
   "output"
   "parameters"
+  "perform"
   "primary"
   "private"
   "protected"
@@ -250,6 +258,7 @@
   "resumable"
   "returning"
   "right"
+  "rollback"
   "rows"
   "search"
   "section"
