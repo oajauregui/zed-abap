@@ -8,4 +8,4 @@ repository = "https://github.com/oajauregui/zed-abap"
 
 [grammars.abap]
 repository = "https://github.com/oajauregui/tree-sitter-abap"
-rev = "6118d11b70ddecabbe299b4aead107f4e090b19a"
+rev = "4ad6f8046bbf712a96026a12475189d27ac0c450"

@@ -72,6 +72,10 @@
 (call_method_static method_name: (name) @function @variable)
 (call_method_instance instance_name: (name) @variable)
 (call_method_instance method_name: (name) @function @variable)
+(functional_call_instance instance_name: (name) @variable)
+(functional_call_instance method_name: (name) @function @variable)
+(functional_call_static class_name: (name) @type @variable)
+(functional_call_static method_name: (name) @function @variable)
 (predicate_call name: (name) @function.builtin @function @variable)
 (macro_include name: (name) @function @variable)
 (perform_statement name: (name) @function @variable)
@@ -141,6 +145,7 @@
   "concatenate"
   "cond"
   "condense"
+  "constants"
   "constructor"
   "continue"
   "conv"
@@ -211,7 +216,9 @@
   "inheriting"
   "initial"
   "inner"
+  "insert"
   "interface"
+  "interfaces"
   "into"
   "is"
   "join"
@@ -232,6 +239,7 @@
   "m"
   "mapping"
   "memory"
+  "message"
   "method"
   "methods"
   "modif"
@@ -245,6 +253,7 @@
   "non-unique"
   "np"
   "ns"
+  "number"
   "o"
   "object"
   "obligatory"
@@ -332,13 +341,16 @@
 ] @keyword.operator @keyword
 
 ; ── Operators ─────────────────────────────────────────────────────────
+; "=>" is not listed here as a bare token: it's ambiguous with the "=>"
+; punctuation below (static class/interface member access, no spaces) --
+; both compile to the identical anonymous token, so a bare-text pattern
+; can't tell them apart. Scoped to its actual parent node instead.
 [
   "="
   "<>"
   "><"
   "<="
   ">="
-  "=>"
   "=<"
   "<"
   ">"
@@ -352,6 +364,8 @@
   "&&"
   "!"
 ] @operator
+
+(comparison_expression "=>" @operator)
 
 "@" @punctuation.special
 
@@ -368,6 +382,11 @@
   ","
   ":"
   "->"
-  "=>"
   "~"
 ] @punctuation.delimiter
+
+; "=>" as static member access (class=>attribute / class=>method( )) --
+; see the note above the operator list for why this can't be a bare pattern.
+(attribute_access_static "=>" @punctuation.delimiter)
+(call_method_static "=>" @punctuation.delimiter)
+(functional_call_static "=>" @punctuation.delimiter)
